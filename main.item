@@ -1,0 +1,16 @@
+import std;
+
+global var = 0;
+
+func add_one(num) {
+    return num + 1;
+}
+func mod_seven(num) {
+    return num % 7;
+}
+
+event main {
+    std.tellraw("Hello, world!");
+    std.tellvar(var);
+    std.tellvar(add_one(var));
+}

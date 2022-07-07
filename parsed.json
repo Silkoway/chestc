@@ -1,0 +1,136 @@
+[
+  {
+    "type": "import",
+    "value": "std"
+  },
+  {
+    "type": "Semi",
+    "value": ""
+  },
+  {
+    "type": "global",
+    "value": "var",
+    "init": {
+      "type": "Number",
+      "value": 0
+    }
+  },
+  {
+    "type": "Semi",
+    "value": ""
+  },
+  {
+    "type": "function",
+    "value": "add_one",
+    "args": [
+      {
+        "type": "Object",
+        "value": "num"
+      }
+    ],
+    "body": [
+      {
+        "type": "return",
+        "value": {
+          "type": "Add",
+          "left": {
+            "type": "Number",
+            "value": "num"
+          },
+          "right": {
+            "type": "Number",
+            "value": "1"
+          }
+        }
+      },
+      {
+        "type": "Semi",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "type": "function",
+    "value": "mod_seven",
+    "args": [
+      {
+        "type": "Object",
+        "value": "num"
+      }
+    ],
+    "body": [
+      {
+        "type": "return",
+        "value": {
+          "type": "Mod",
+          "left": {
+            "type": "Number",
+            "value": "num"
+          },
+          "right": {
+            "type": "Number",
+            "value": "7"
+          }
+        }
+      },
+      {
+        "type": "Semi",
+        "value": ""
+      }
+    ]
+  },
+  {
+    "type": "Event",
+    "value": "main",
+    "body": [
+      {
+        "type": "function_call",
+        "value": "std.tellraw",
+        "args": [
+          {
+            "type": "String",
+            "value": "Hello, world!"
+          }
+        ]
+      },
+      {
+        "type": "Semi",
+        "value": ""
+      },
+      {
+        "type": "function_call",
+        "value": "std.tellvar",
+        "args": [
+          {
+            "type": "Object",
+            "value": "var"
+          }
+        ]
+      },
+      {
+        "type": "Semi",
+        "value": ""
+      },
+      {
+        "type": "function_call",
+        "value": "std.tellvar",
+        "args": [
+          {
+            "type": "function_call",
+            "value": "add_one",
+            "args": [
+              {
+                "type": "Object",
+                "value": "var"
+              }
+            ]
+          }
+        ]
+      },
+      {
+        "type": "Semi",
+        "value": ""
+      }
+    ]
+  }
+]
