@@ -1,5 +1,7 @@
 import std;
 
 event main {
-    $.print((50 + 20) * 60)
+    event main {
+        
+    }
 }

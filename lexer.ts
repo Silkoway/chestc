@@ -1,6 +1,6 @@
 import chalk from "chalk";
 
-const specialChars: string[] = " (){}[];+-*/%=\n".split("")
+const specialChars: string[] = " (){}[];+-*/%=\n,><".split("")
 const isNum = (num: string) => {
     var dots = 0;
     var notnum = false;
@@ -87,6 +87,12 @@ export const lex = (file: string) => {
                 case 'import':
                     wordType = 'Import'
                     break;
+                case 'if':
+                    wordType = 'If'
+                    break;
+                case 'unless':
+                    wordType = 'Unless'
+                    break;
                 default:
                     if ((curword.startsWith("\"") && curword.endsWith("\"")) || (curword.startsWith("'") && curword.endsWith("'"))) {
                         curword = curword.slice(1, -1)
@@ -150,10 +156,19 @@ export const lex = (file: string) => {
                 case '=':
                     words.push(new Token('', 'Assign', line, char))
                     break;
+                case ',':
+                    words.push(new Token('', 'Comma', line, char))
+                    break;
                 case '\n':
                     incomment = 0;
                     char = 1;
                     line++;
+                    break;
+                case '>':
+                    words.push(new Token('', 'Greater', line, char))
+                    break;
+                case '<':
+                    words.push(new Token('', 'Lesser', line, char))
                     break;
             }
         } else {
@@ -161,6 +176,20 @@ export const lex = (file: string) => {
         }
     }
 
-    return words
+    var logicwords = [];
+
+    for (let i = 0; i < words.length; i++) {
+        const w = words[i];
+        if ("Add Sub Mul Div Mod Greater Lesser Assign".split(" ").includes(w.type)) {
+            if (words[i+1].type === 'Assign') {
+                logicwords.push(new Token('', `${w.type}_Equal`, w.line, w.char))
+                i++;
+                continue;
+            }
+        }
+        logicwords.push(w)
+    }
+
+    return logicwords
 }
 

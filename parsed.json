@@ -12,23 +12,43 @@
     "value": "main",
     "body": [
       {
-        "type": "function_call",
-        "value": "$.print",
+        "type": "global",
+        "value": "e",
+        "init": {
+          "type": "Number",
+          "value": 0
+        }
+      },
+      {
+        "type": "Semi",
+        "value": ""
+      },
+      {
+        "type": "if",
+        "value": "",
         "args": [
           {
-            "type": "LeftParen",
-            "value": ""
-          },
-          {
-            "type": "Add",
+            "type": "Greater_Equal",
             "left": {
               "type": "Number",
-              "value": "50"
+              "value": "e"
             },
             "right": {
               "type": "Number",
-              "value": "20"
+              "value": "0"
             }
+          }
+        ],
+        "body": [
+          {
+            "type": "function_call",
+            "value": "$.print",
+            "args": [
+              {
+                "type": "Object",
+                "value": "e"
+              }
+            ]
           }
         ]
       }

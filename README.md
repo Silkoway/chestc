@@ -2,7 +2,15 @@
 **ChestC** is a compiler for the chest programming language that converts `.item` files into fully functioning datapacks!
 Install this compiler with `npm install chestc -g`!
 ## Features
-### if statements (in progress)
+### if statements
+```
+event main {
+    global var = 0;
+    if (var >= 0) {
+        $.print("Hello World!");
+    }
+}
+```
 ### for loops (in progress)
 ### while loops (in progress)
 ### event functions 

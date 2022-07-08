@@ -3,7 +3,7 @@ import { debug, err } from ".";
 import { errType } from "./errType";
 import { lex, Token } from "./lexer";
 
-class BinaryNode {
+export class BinaryNode {
     type: string;
     left: AnyNode;
     right: AnyNode;
@@ -13,7 +13,7 @@ class BinaryNode {
         this.right = right;
     }
 }
-class BlockNode {
+export class BlockNode {
     type: string;
     value: string;
     args: AnyNode[];
@@ -25,7 +25,7 @@ class BlockNode {
         this.body = body;
     }
 }
-class EventNode {
+export class EventNode {
     type: string;
     value: string;
     body: AnyNode[];
@@ -35,12 +35,12 @@ class EventNode {
         this.body = body;
     }
 }
-class UnaryNode {
+export class UnaryNode {
     type: string;
     value: any | any[]
     constructor(type: string, value: any | any[]) { this.type = type; this.value = value }
 }
-class CallNode {
+export class CallNode {
     type: string;
     value: string;
     args: AnyNode[];
@@ -50,7 +50,7 @@ class CallNode {
         this.args = body;
     }
 }
-class VarDefNode {
+export class VarDefNode {
     type: string;
     value: string;
     init?: AnyNode;
@@ -61,9 +61,9 @@ class VarDefNode {
     }
 }
 
-type AnyNode = BinaryNode | BlockNode | EventNode | UnaryNode | CallNode | VarDefNode;
+export type AnyNode = BinaryNode | BlockNode | EventNode | UnaryNode | CallNode | VarDefNode;
 
-function parseMath(tokens: Token[]) {
+function parseExpression(tokens: Token[]) {
     var i = 0;
     const at = () => tokens[i];
     function parseExpression(): AnyNode {
@@ -79,9 +79,22 @@ function parseMath(tokens: Token[]) {
         return lhs
     }
     function parse_term(): AnyNode {
-        let lhs: AnyNode = parse_factor();
+        let lhs: AnyNode = parse_logic();
 
         while (at()?.type === 'Div' || at()?.type === 'Mul' || at()?.type === 'Mod') {
+            var op = at().type
+            i++
+            let rhs = parseExpression();
+            lhs = new BinaryNode(op, lhs, rhs)
+        }
+
+        return lhs
+    }
+
+    function parse_logic(): AnyNode {
+        let lhs: AnyNode = parse_factor();
+
+        while (["Greater", "Lesser", "Greater_Equal", "Lesser_Equal"].includes(at()?.type)) {
             var op = at().type
             i++
             let rhs = parseExpression();
@@ -108,7 +121,6 @@ function parseMath(tokens: Token[]) {
 
         return expr
     }
-
     return parseExpression()
 }
 
@@ -136,7 +148,55 @@ export function parse(tokens: Token[], depth: number = 0) {
                         if (curlydepth === 0) break;
                     }
                 }
-                parsed.push(new EventNode(tokens[i + 1].value, parse(blockbody.slice(1, -1))))
+                parsed.push(new EventNode(tokens[i + 1].value, parse(blockbody.slice(1, -1), depth + 1)))
+                i = finalIndex
+                break;
+            case 'If':
+            case 'Unless':
+                var argsbody: Token[] = [];
+                var startBlockIndex = -1;
+                {
+                    var parendepth = 0;
+                    var broke = false;
+                    for (let j = i + 1; j < tokens.length; j++) {
+                        const tok2 = tokens[j];
+                        argsbody.push(tok2)
+                        if (tok2.type === 'LeftParen') {
+                            parendepth++;
+                        }
+                        if (tok2.type === 'RightParen') {
+                            parendepth--;
+                            if (parendepth === 0) {
+                                startBlockIndex = j + 1;
+                                broke = true;
+                                break;
+                            }
+                        }
+                    }
+                    if (!broke) err(`Parentheses not ended in ${tok.type === 'If' ? 'if' : 'unless'} statement.`, errType.ParenthesesNotEnded)
+                }
+                argsbody = argsbody.filter(e => e.type !== 'Comma')
+                var blockbody: Token[] = [];
+                var finalIndex = i;
+                {
+                    var curlydepth = 0;
+                    var broke = false;
+                    for (let j = startBlockIndex; j < tokens.length; j++) {
+                        const tok2 = tokens[j];
+                        blockbody.push(tok2)
+                        if (tok2.type === 'LeftCurly') {
+                            curlydepth++;
+                        }
+                        if (tok2.type === 'RightCurly') {
+                            curlydepth--;
+                            broke = true;
+                            finalIndex = j;
+                            if (curlydepth === 0) break;
+                        }
+                    }
+                    if (!broke) err(`Curly brackets not ended in ${tok.type === 'If' ? 'if' : 'unless'} definition.`, errType.CurlyBracketsNotEnded)
+                }
+                parsed.push(new BlockNode(`${tok.type === 'If' ? 'if' : 'unless'}`, '', [parseExpression(argsbody.slice(1, -1))], parse(blockbody.slice(1, -1), depth + 1)));
                 i = finalIndex
                 break;
             case 'Macro':
@@ -163,6 +223,7 @@ export function parse(tokens: Token[], depth: number = 0) {
                     }
                     if (!broke) err(`Parentheses not ended in ${tok.type === 'Func' ? 'function' : 'macro'} definition.`, errType.ParenthesesNotEnded)
                 }
+                argsbody = argsbody.filter(e => e.type !== 'Comma')
                 var blockbody: Token[] = [];
                 var finalIndex = i;
                 {
@@ -183,7 +244,7 @@ export function parse(tokens: Token[], depth: number = 0) {
                     }
                     if (!broke) err(`Curly brackets not ended in ${tok.type === 'Func' ? 'function' : 'macro'} definition.`, errType.CurlyBracketsNotEnded)
                 }
-                parsed.push(new BlockNode(`${tok.type === 'Func' ? 'function' : 'macro'}`, tokens[i + 1].value, parse(argsbody.slice(1, -1)), parse(blockbody.slice(1, -1))));
+                parsed.push(new BlockNode(`${tok.type === 'Func' ? 'function' : 'macro'}`, tokens[i + 1].value, parse(argsbody.slice(1, -1), depth + 1), parse(blockbody.slice(1, -1), depth + 1)));
                 i = finalIndex
                 break;
             case 'Global':
@@ -201,7 +262,7 @@ export function parse(tokens: Token[], depth: number = 0) {
                     }
                     evaltoks.push(tok2)
                 }
-                parsed.push(new VarDefNode(tok.type === 'Global' ? 'global' : 'local', tokens[i + 1].value, parse(evaltoks)[0]))
+                parsed.push(new VarDefNode(tok.type === 'Global' ? 'global' : 'local', tokens[i + 1].value, parse(evaltoks, depth + 1)[0]))
                 i = seti;
                 break;
             case 'Import':
@@ -220,7 +281,7 @@ export function parse(tokens: Token[], depth: number = 0) {
                     }
                     evaltoks.push(tok2)
                 }
-                parsed.push(new UnaryNode('return', parse(evaltoks)[0]))
+                parsed.push(new UnaryNode('return', parse(evaltoks, depth + 1)[0]))
                 i = seti;
                 break;
             default:
@@ -245,8 +306,8 @@ export function parse(tokens: Token[], depth: number = 0) {
                                 }
                             }
                             if (tok.value.endsWith('!')) {
-                                parsed.push(new CallNode('macro_call', tok.value.slice(0, -1), parse(blockbody.slice(1, -1))))
-                            } else parsed.push(new CallNode('function_call', tok.value, parse(blockbody.slice(1, -1))))
+                                parsed.push(new CallNode('macro_call', tok.value.slice(0, -1), parse(blockbody.slice(1, -1), depth + 1)))
+                            } else parsed.push(new CallNode('function_call', tok.value, parse(blockbody.slice(1, -1), depth + 1)))
                             i = finalIndex
                             break;
                         }
@@ -269,7 +330,7 @@ export function parse(tokens: Token[], depth: number = 0) {
                         }
                         if (l === '}' && incurly) {
                             incurly = false;
-                            newval.push(...parse(lex(evalw)))
+                            newval.push(...parse(lex(evalw), depth + 1))
                             evalw = "";
 
 
@@ -286,36 +347,38 @@ export function parse(tokens: Token[], depth: number = 0) {
                 parsed.push(new UnaryNode(tok.type, (tok.type === 'Number' ? parseFloat(tok.value) : (tok.type === 'Boolean' ? (tok.value === 'true' ? true : false) : tok.value))))
 
         }
-
+        const operatorlist = ["Add", "Sub", "Mul", "Div", "Mod", "Greater", "Lesser", "Greater_Equal", "Lesser_Equal"]
 
         // * Parse Math
-        if (["Add", "Sub", "Mul", "Div", "Mod"].includes(tokens[i + 1]?.type)) {
+        if (operatorlist.includes(tokens[i + 1]?.type) || ["LeftParen"].includes(tok.type)) {
             var maths = []
             var endindex = i;
             var prev_op = true;
-            for (let j = 0; j < tokens.slice(i).length; j++) {
-                const tok2 = tokens.slice(i)[j];
-
-                if (prev_op || tok2.type === 'Number') {
+            var islice = (tokens.slice(i));
+            for (let j = 0; j < islice.length; j++) {
+                const tok2 = islice[j];
+                if (tok2.type === 'LeftParen' || tok2.type === 'RightParen') {
+                    maths.push(tok2)
+                    prev_op = tok2.type === 'LeftParen';
+                }
+                else if (prev_op || tok2.type === 'Number') {
                     maths.push(tok2);
                     prev_op = false;
                 }
                 else {
-                    if (["Add", "Sub", "Mul", "Div", "Mod"].includes(tok2?.type)) {
+                    if (operatorlist.includes(tok2?.type)) {
                         maths.push(tok2)
                         prev_op = true
-                    } else if (tok2.type === 'LeftParen' || tok2.type === 'RightParen') {
-                        maths.push(tok2)
-                        prev_op = tok2.type === 'LeftParen';
                     } else {
                         endindex = i + j;
                         break;
                     }
                 }
             }
-            endindex = endindex === i ? i + tokens.slice(i).length : endindex;
+
+            endindex = endindex === i ? i + islice.length : endindex;
             parsed.pop()
-            parsed.push(parseMath(maths))
+            parsed.push(parseExpression(maths))
             //parsed = parsed.slice(0, -(maths.length))
             i = endindex;
             continue;
