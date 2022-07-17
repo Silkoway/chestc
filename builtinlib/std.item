@@ -1,0 +1,3 @@
+macro print_m(msg) {
+	compile_to(`tellraw @a #{msg}`)
+}

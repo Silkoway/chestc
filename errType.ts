@@ -9,4 +9,5 @@ export enum errType {
     InvalidVariableType,
     InvalidType,
     UnknownSubcommand,
+    ImportStatementNotInTopLevel,
 }

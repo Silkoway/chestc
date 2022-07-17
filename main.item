@@ -1,7 +1,5 @@
 import std;
 
 event main {
-    event main {
-        
-    }
+	std.tellraw("urmom is fat");
 }

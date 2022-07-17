@@ -9,6 +9,7 @@ import { parse } from './parser'
 import * as constants from './constants'
 import { cwd } from 'process'
 import path from 'path'
+import {compile} from './compile'
 const prompt = require('prompt-sync')()
 const argv: any = yargs(hideBin(process.argv)).argv
 
@@ -20,7 +21,7 @@ var package_ver: string = JSON.parse(fs.readFileSync(
 )).version
 
 var info = {
-    latestVersion: package_ver
+    latestVersion: package_ver,
 };
 
 if (fs.existsSync(path.join(appdatadir, "chestc/data"))) {
@@ -57,10 +58,12 @@ if (argv._[0] === 'build') {
     var file = fs.readFileSync(argv._[1], 'utf8').replace(/\r/g, '')
     console.log(`Lexing...`)
     var lexed = lex(file)
-    console.log(`Parsed...`)
+    console.log(`Parsing...`)
     var parsed = parse(lexed)
-    console.log(`Compiling hasn't been implemented yet so this is all there is.`)
+    console.log(`Compiling...`)
+    var compiled = compile(parsed, argv._[0].replace(/\.item/g, ''), cwd())
     // console.log(parsed)
+    console.log(`Finished!`)
     fs.writeFileSync('parsed.json', JSON.stringify(parsed, null, 2))
 } else if (argv._[0] === 'init') {
     console.log('Chest project initialiser!')
@@ -87,7 +90,7 @@ if (argv._[0] === 'build') {
 
     )
     console.log("[2/3]")
-    fs.writeFileSync(path.join(cwd(), `${projectname}/${main_name}`), 
+    fs.writeFileSync(path.join(process.cwd(), `${projectname}/${main_name}`), 
     `
 import std;
 

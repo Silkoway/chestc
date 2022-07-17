@@ -33,7 +33,7 @@ export class Token {
 
 export const lex = (file: string) => {
     file += ' '
-    var lets = file.split('')
+    var lets = file.replace(/\t/g, '').split('')
     var words: Token[] = []
     var curword = ''
     var instring = false;
