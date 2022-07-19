@@ -1,5 +1,6 @@
 import std;
 
-event main {
-	std.tellraw("urmom is fat");
+event load {
+	global dfawef = 10;
+
 }

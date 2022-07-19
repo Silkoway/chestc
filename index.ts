@@ -34,6 +34,9 @@ export const err = (msg: string, _errType: errType, line?: number, char?: number
     console.error(chalk.red(`${msg}\n${(line || char) ? `At line ${line}, character ${char}\n` : ""}Error code: ${_errType}, ${errType[_errType]}`))
     process.exit(1)
 }
+export const warn = (msg: string, from: string) => {
+    console.warn(`${chalk.yellow(`[WARN] [${from}]`)} ${msg}`)
+}
 export const debug = (type: string, msg: string) => {
     console.log(`${chalk.green('[DEBUG]')} ${chalk.red(`[${type}]`)} ${msg}`)
 }
@@ -61,7 +64,7 @@ if (argv._[0] === 'build') {
     console.log(`Parsing...`)
     var parsed = parse(lexed)
     console.log(`Compiling...`)
-    var compiled = compile(parsed, argv._[0].replace(/\.item/g, ''), cwd())
+    var compiled = compile(parsed, {name: argv._[1].replace(/\.item/g, ''), namespace: argv._[1].replace(/\.item/g, '')}, cwd())
     // console.log(parsed)
     console.log(`Finished!`)
     fs.writeFileSync('parsed.json', JSON.stringify(parsed, null, 2))

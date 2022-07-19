@@ -9,17 +9,15 @@
   },
   {
     "type": "Event",
-    "value": "main",
+    "value": "load",
     "body": [
       {
-        "type": "function_call",
-        "value": "std.tellraw",
-        "args": [
-          {
-            "type": "String",
-            "value": "urmom is fat"
-          }
-        ]
+        "type": "global",
+        "value": "dfawef",
+        "init": {
+          "type": "Number",
+          "value": 10
+        }
       },
       {
         "type": "Semi",

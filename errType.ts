@@ -10,4 +10,5 @@ export enum errType {
     InvalidType,
     UnknownSubcommand,
     ImportStatementNotInTopLevel,
+    FileReadError
 }
