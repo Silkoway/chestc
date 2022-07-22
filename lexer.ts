@@ -1,6 +1,6 @@
 import chalk from "chalk";
 
-const specialChars: string[] = " (){}[];+-*/%=\n,><".split("")
+const specialChars: string[] = " (){}[];+-*/%=\n,><…".split("")
 const isNum = (num: string) => {
     var dots = 0;
     var notnum = false;
@@ -33,7 +33,7 @@ export class Token {
 
 export const lex = (file: string) => {
     file += ' '
-    var lets = file.replace(/\t/g, '').split('')
+    var lets = file.replace(/\t/g, '').replace(/\.{3}/g, '…').split('')
     var words: Token[] = []
     var curword = ''
     var instring = false;
@@ -169,6 +169,9 @@ export const lex = (file: string) => {
                     break;
                 case '<':
                     words.push(new Token('', 'Lesser', line, char))
+                    break;
+                case '…':
+                    words.push(new Token('', 'Ellipses', line, char))
                     break;
             }
         } else {

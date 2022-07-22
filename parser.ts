@@ -1,4 +1,3 @@
-import { boolean } from "yargs";
 import { debug, err } from ".";
 import { errType } from "./errType";
 import { lex, Token } from "./lexer";
@@ -63,6 +62,7 @@ export class VarDefNode {
 
 export type AnyNode = BinaryNode | BlockNode | EventNode | UnaryNode | CallNode | VarDefNode;
 
+//Math
 function parseExpression(tokens: Token[]) {
     var i = 0;
     const at = () => tokens[i];
@@ -313,7 +313,6 @@ export function parse(tokens: Token[], depth: number = 0) {
                         }
                 }
                 if (tok.type === 'CompileString') {
-                    debug('PARSER', 'CompileString')
                     var newval: AnyNode[] = []
                     var vallets = tok.value.split('')
                     var w = ""
@@ -321,7 +320,8 @@ export function parse(tokens: Token[], depth: number = 0) {
                     var incurly = false;
                     for (let j = 0; j < vallets.length; j++) {
                         const l = vallets[j];
-                        if (l === '#' && vallets[j + 1] === '{' && !incurly) {
+                        
+                        if ((l === '#' && vallets[j + 1] === '{' && !incurly)) {
                             incurly = true;
                             newval.push(new UnaryNode('String', w))
                             w = "";
@@ -336,10 +336,11 @@ export function parse(tokens: Token[], depth: number = 0) {
 
                             continue;
                         }
+                        if (j === vallets.length - 1) {
+                            newval.push(new UnaryNode('String', w + l))
+                        }
                         if (!incurly) w += l;
                         else evalw += l;
-
-                        debug('PARSER', j.toString())
                     }
                     parsed.push(new UnaryNode(tok.type, newval))
                     break;

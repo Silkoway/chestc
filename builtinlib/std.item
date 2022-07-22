@@ -1,3 +1,6 @@
 macro print_m(msg) {
-	compile_to(`tellraw @a #{msg}`)
+	compile_to(`tellraw @a "#{msg}"`)
+}
+macro print_any(any) {
+	compile_to(`tellraw @a #{any}`)
 }

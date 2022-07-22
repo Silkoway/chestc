@@ -10,5 +10,8 @@ export enum errType {
     InvalidType,
     UnknownSubcommand,
     ImportStatementNotInTopLevel,
-    FileReadError
+    FileReadError,
+    InvalidMacro,
+    CannotFindVariable,
+    MacroNotFound
 }

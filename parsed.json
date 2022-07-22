@@ -8,6 +8,25 @@
     "value": ""
   },
   {
+    "type": "macro",
+    "value": "test",
+    "args": [],
+    "body": [
+      {
+        "type": "global",
+        "value": "awefawef",
+        "init": {
+          "type": "Number",
+          "value": 10
+        }
+      },
+      {
+        "type": "Semi",
+        "value": ""
+      }
+    ]
+  },
+  {
     "type": "Event",
     "value": "load",
     "body": [
@@ -18,6 +37,20 @@
           "type": "Number",
           "value": 10
         }
+      },
+      {
+        "type": "Semi",
+        "value": ""
+      },
+      {
+        "type": "macro_call",
+        "value": "std.print_m",
+        "args": [
+          {
+            "type": "String",
+            "value": "hello, i am dumb"
+          }
+        ]
       },
       {
         "type": "Semi",

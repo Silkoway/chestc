@@ -1,6 +1,11 @@
 import std;
 
+macro test() {
+	global awefawef = 10;
+}
+
 event load {
 	global dfawef = 10;
-
+	std.print_m!("hello, i am dumb");
 }
+
